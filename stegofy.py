@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+
+# Script to hide a text message within a given image.
+# Requirements:
+#   1) Parse the arguments passed to the script in the command line. COMPLETE
+#   2) Display usage information correctly if arguments not passed correctly. COMPLETE
+#   3) Verify that the image argument is an image, and the to_hide argument is a string. HALF-COMPLETE - to_hide is a string by default as passed via command line. Used imghdr module to check filetype of the image
+#   4) Stegofy the image with the text. COMPLETE
+#   5) Verify that the steganography has taken place. COMPLETE
+#   6) Place any errors in stderr. COMPLETE
+#
+# ADDED REQUIREMENTS:
+#   7) The secret message should not be passed on the command line itself, but be read in. Not very secret if it's in the shell history. COMPLETE
+
+import sys
+import imghdr
+import getpass
+from PIL import Image, ImageFont, ImageDraw
+import textwrap
+import os
+
+def set_variables():
+    global program_name
+    program_name = sys.argv[0]
+    try:
+        if len(sys.argv) == 2:
+            global image
+            image = sys.argv[1]
+        else:
+            print_usage()
+            sys.stderr.write("Number of arguments supplied is incorrect.")
+            sys.exit(4)
+    except ValueError:
+        print_usage()
+        sys.stderr.write("ValueError occurred. Exit code 1")
+        sys.exit(1)
+    except NameError:
+        print_usage()
+        sys.stderr.write("NameError occurred. Exit code 2")
+        sys.exit(2)
+    except IndexError:
+        print_usage()
+        sys.stderr.write("IndexError occurred. Exit code 3")
+        sys.exit(3)
+
+def print_usage():
+    print("Usage: ./stegofy.py [path/to/image/to/manipulate]\nIn encode mode:\nType your string to hide, and it will be placed into the image you've provided.\nIn decode mode:\nWait for the script to decode the hidden string, and check in the /tmp/images folder (Created on run if not already present).")
+
+def verify_image(image):
+    try:
+        image_format = imghdr.what(image)
+        return image_format
+    except IOError:
+        return "No such file or directory, or is not an image."
+        sys.stderr.write("Check your image path, and filetype.")
+        sys.exit(4)
+
+def get_image_name(image):
+    global image_name
+    path_split = image.split('/')
+    suffix_shave = path_split[-1].split('.')
+    image_name = suffix_shave[0]
+    return image_name
+
+def encode_image(text_to_encode, template_image):
+    template_image = Image.open(template_image)
+    red_template = template_image.split()[0]
+    green_template = template_image.split()[1]
+    blue_template = template_image.split()[2]
+
+    x_size = template_image.size[0]
+    y_size = template_image.size[1]
+
+    #text draw
+    image_text = write_text(text_to_encode, template_image.size)
+    bw_encode = image_text.convert('1')
+
+    #encode text into image
+    encoded_image = Image.new("RGB", (x_size, y_size))
+    pixels = encoded_image.load()
+    for i in range(x_size):
+        for j in range(y_size):
+            red_template_pix = bin(red_template.getpixel((i,j)))
+            old_pix = red_template.getpixel((i,j))
+            tencode_pix = bin(bw_encode.getpixel((i,j)))
+
+            if tencode_pix[-1] == '1':
+                red_template_pix = red_template_pix[:-1] + '1'
+            else:
+                red_template_pix = red_template_pix[:-1] + '0'
+            pixels[i, j] = (int(red_template_pix, 2), green_template.getpixel((i,j)), blue_template.getpixel((i,j)))
+    encoded_image.save("/tmp/images/" + image_name + ".e.png")
+
+def decode_image(file_location):
+    """Decodes the hidden message in an image
+    file_location: the location of the image file to decode. By default is the provided encoded image in the images folder
+    """
+    encoded_image = Image.open(file_location)
+    red_channel = encoded_image.split()[0]
+
+    x_size = encoded_image.size[0]
+    y_size = encoded_image.size[1]
+
+    decoded_image = Image.new("RGB", encoded_image.size)
+    pixels = decoded_image.load()
+
+    for i in range(x_size):
+        for j in range(y_size):
+            if bin(red_channel.getpixel((i, j)))[-1] == '0':
+                pixels[i, j] = (255, 255, 255)
+            else:
+                pixels[i, j] = (0,0,0)
+    global image_name
+    decoded_image.save("/tmp/images/" + image_name + ".d.png")
+
+def write_text(text_to_write, image_size):
+    """Writes text to an RGB image. Automatically line wraps
+    text_to_write: the text to write to the image
+    """
+    image_text = Image.new("RGB", image_size)
+    font = ImageFont.load_default().font
+    drawer = ImageDraw.Draw(image_text)
+
+    #Text wrapping. Change parameters for different text formatting
+    margin = offset = 10
+    for line in textwrap.wrap(text_to_write, width=60):
+        drawer.text((margin,offset), line, font=font)
+        offset += 10
+    return image_text
+
+def create_tmp_images_dir(temp_dir="/tmp/images"):
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    else:
+        print("/tmp/images already created.")
+
+if __name__ == "__main__":
+    set_variables()
+    image_format = verify_image(image)
+    global image_name
+    get_image_name(image)
+    create_tmp_images_dir()
+    mode = raw_input("Enter encode or decode mode? enter e/d as required.\n")
+    if mode == 'e' or mode == 'E' or mode == 'encode':
+        hidden_string = getpass.getpass('Enter your string to hide.')
+        print("Program Name: " + program_name + "\n" + "Image: " + image + "\n")
+        print("File format of image argument: " + image_format)
+        encode_image(hidden_string, image)
+        print("Image encoded with your hidden string. Check the images folder.")
+    elif mode == 'd' or mode == 'D' or mode == 'decode':
+        decode_image(image)
+        print("Scanned image for hidden strings. Results found in images folder.")
+    else:
+        print("Mode not recognised. Please enter e for encode or d for decode.")
+        sys.stderr.write("Currently the script only handles \'e\', \'d\', \'E\', \'D\', \'encode\' and \'decode\.")
+        sys.exit(5)
