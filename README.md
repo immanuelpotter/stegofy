@@ -17,6 +17,7 @@ In decode mode - let it do the work. Worth mentioning that it's only been tested
 Encoded/decoded images are written out to /tmp/images, if that folder doesn't exist, the script will create it for you.
 Obviously, if you don't want to lose them on reboot, move/copy them out of there.
 
-TODO: installer script so can be ran from anywhere
+TODO: installer script so can be ran from anywhere - COMPLETE
       pass in arguments -e/--encode or -d/--decode from command line to skip interactive mode selection
       tidy up/refactor
+      verify_image() is fairly redundant at the moment - make it matter
