@@ -23,9 +23,10 @@ import argparse
 """
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Stegofy an image - encode or decode.')
-    parser.add_argument('image')
-    parser.add_argument('--decode', metavar = 'd')
-    parser.add_argument('--encode', metavar = 'e')
+    parser.add_argument('image', type=string)
+    parser.add_argument('--decode', metavar = 'd', action='decode')
+    parser.add_argument('--encode', metavar = 'e', action='encode')
+    args = parser.parse_args()
 """
 
 def set_variables():
