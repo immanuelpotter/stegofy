@@ -3,7 +3,7 @@ Adaptation of python stego from blog.justsophie.com, to quickly hide strings in 
 
 Original code found at https://github.com/srli/image_steganography
 
-Quoted from her page: This code uses the Python Pillow library. Install with "sudo pip install pillow"
+Quoted from her page: This code uses the Python Pillow library. Install with "sudo pip install pillow" if not running the docker container
 
 This script enables you to pass an image at the command line, and either encode a hidden string in it, or the reverse.
 
@@ -17,7 +17,9 @@ In decode mode - let it do the work. Worth mentioning that it's only been tested
 Encoded/decoded images are written out to /tmp/images, if that folder doesn't exist, the script will create it for you.
 Obviously, if you don't want to lose them on reboot, move/copy them out of there.
 
-TODO: installer script so can be ran from anywhere - COMPLETE
+NB: This script is saving everything as a .png by default - take into account when decoding as this may have changed the suffix.
+
+TODO:
       pass in arguments -e/--encode or -d/--decode from command line to skip interactive mode selection
       tidy up/refactor
-      verify_image() is fairly redundant at the moment - make it matter
+      verify_image() is redundant at the moment

@@ -18,6 +18,15 @@ import getpass
 from PIL import Image, ImageFont, ImageDraw
 import textwrap
 import os
+import argparse
+
+"""
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Stegofy an image - encode or decode.')
+    parser.add_argument('image')
+    parser.add_argument('--decode', metavar = 'd')
+    parser.add_argument('--encode', metavar = 'e')
+"""
 
 def set_variables():
     global program_name
@@ -143,6 +152,7 @@ def create_tmp_images_dir(temp_dir="/tmp/images"):
         print("/tmp/images already created.")
 
 if __name__ == "__main__":
+    # parse_arguments()
     set_variables()
     image_format = verify_image(image)
     global image_name
