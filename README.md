@@ -19,14 +19,20 @@ Obviously, if you don't want to lose them on reboot, move/copy them out of there
 
 NB: This script is saving everything as a .png by default - take into account when decoding as this may have changed the suffix.
 
-TODO:
-      pass in arguments -e/--encode or -d/--decode from command line to skip interactive mode selection
-      tidy up/refactor
-      verify_image() is redundant at the moment
+Directions for use:
 
-TODO: installer script so can be ran from anywhere on local machine - COMPLETE
-      Dockerize if can't be bothered to actually install - COMPLETE
+1) Clone this repository.
+2) cd into where you've cloned it: docker build -t stegocontainer .
+3) mount as a volume the image(s) you want to stegofy
+    docker run -d -p 8080:80 -v /path/to/image/locally:/root/image stegocontainer
+4) docker exec -it <container sha given above> bash
+5) service apache2 start (won't work in Dockerfile - find out why)
+6) stegofy /root/image (choose to encode or decode as necessary).
+7) mv /tmp/images/* /var/www/html/
+8) Navigate to localhost:8080 on your host machine.
+9) There's the rendered content which you can save, and then pass on to someone else/do whatever you want with!
+
+TODO:
+      verify_image() is redundant at the moment
       pass in arguments -e/--encode or -d/--decode from command line to skip interactive mode selection
       tidy up/refactor
-      verify_image() is fairly redundant at the moment - make it matter
-      Although the dockerized program works, there is no way to view the image in the container currently. Port-forwarding host machine browser sounds like a good solution, needs to be done next
