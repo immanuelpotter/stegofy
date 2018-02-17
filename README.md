@@ -22,40 +22,41 @@ NB: This script is saving everything as a .png by default - take into account wh
 Directions for use:
 
 1) Clone this repository.
-
+```
       git clone https://github.com/immanuelpotter/stegofy
-
+```
 2) cd into where you've cloned it, and build the container:
-
+```
       cd stegofy/
-      
+   ```   
 Run:
-      docker build -t stegocontainer .
-      
+```
+   docker build -t stegocontainer .
+```      
 3) mount as a volume the image file(s) you want to stegofy when you run the built image:
-
+```
       docker run -d -p 8080:80 -v /path/to/image/locally:/root/image -it stegocontainer bash
-    
+   ``` 
 4) Exec into the container to operate
-
+```
       docker exec -it <container sha given above> bash
-      
+   ```   
 5) Start the apache service (won't work in Dockerfile - find out why)
-
+```
       service apache2 start
-      
+   ```   
 6) Encode/decode image file passed in during mount (at step 3)
-
+```
       stegofy /root/image
-      
+   ```   
 7) Move the results of step 6 into apache dir to be served up
-
+```
       mv /tmp/images/* /var/www/html/
-      
+   ```   
 8) View encoded/decoded content in the browser.
-
+```
       Navigate to localhost:8080 on your host machine.
-      
+   ```   
 There's the rendered content which you can save onto the host by right clicking!
 
 TODO:
