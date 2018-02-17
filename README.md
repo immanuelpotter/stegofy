@@ -24,7 +24,7 @@ Directions for use:
 1) Clone this repository.
 2) cd into where you've cloned it: docker build -t stegocontainer .
 3) mount as a volume the image(s) you want to stegofy
-    docker run -d -p 8080:80 -v /path/to/image/locally:/root/image stegocontainer
+    docker run -d -p 8080:80 -v /path/to/image/locally:/root/image -it stegocontainer bash
 4) docker exec -it <container sha given above> bash
 5) service apache2 start (won't work in Dockerfile - find out why)
 6) stegofy /root/image (choose to encode or decode as necessary).
