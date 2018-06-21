@@ -35,7 +35,7 @@ Run:
 ```      
 3) mount as a volume the image file(s) you want to stegofy when you run the built image:
 ```
-      docker run -d -p 8080:80 -v /path/to/image/locally:/root/image -it stegocontainer bash
+      docker run -d -p 8080:80 -v /path/to/dir/containing/image:/root/images -it stegocontainer bash
    ``` 
 4) Exec into the container to operate
 ```
@@ -44,16 +44,23 @@ Run:
 5) Start the apache service (won't work in Dockerfile - find out why)
 ```
       service apache2 start
-   ```   
-6) Encode/decode image file passed in during mount (at step 3)
+   ```  
+
+6) Check the dir you've mounted in is accessible. If not, SELinux may be spoiling the fun...
+```#On your host
+
+   chcon -Rt svirt_sandbox_file_t /path/to/dir/containing/image
+
+```
+7) Encode/decode image file passed in during mount (at step 3)
 ```
       stegofy /root/image
    ```   
-7) Move the results of step 6 into apache dir to be served up
+8) Move the results of step 6 into apache dir to be served up
 ```
       mv /tmp/images/* /var/www/html/
    ```   
-8) View encoded/decoded content in the browser.
+9) View encoded/decoded content in the browser.
 ```
       Navigate to localhost:8080 on your host machine.
    ```   
